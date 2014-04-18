@@ -8,3 +8,4 @@ cabal-dev
 *.json
 *.csv
 pitcher-viz
+d3.*

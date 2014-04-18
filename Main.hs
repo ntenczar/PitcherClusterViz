@@ -14,29 +14,27 @@ import qualified Data.ByteString.Lazy as LBS
 import Debug.Trace
 
 main :: IO ()
-main = getArgs >>= parseCmdArgs
+main = run
 
-parseCmdArgs [minDist] = run (read minDist)
-parseCmdArgs _ = error "wrong number of arguments"
-
-run :: Double -> IO ()
-run minDist = do
+run :: IO ()
+run = do
   plist <- parsePitchingFile
   let plist'    = map (\(p, i) -> p {pId = i}) $ zip plist [0..(length plist)]
       plist''   = map (\p -> assignColor p teams) plist'
       tree      = treeify plist''
       plist'''  = map (\p -> nnToComp p $ drop 1 $ kNearestNeighbors tree 6 p)
                     plist''
-      links     = trimLinks minDist $ allLinks plist'''
+      links     = allLinks plist'''
       nodes     = allNodes plist'''
       fileData  = lazyToStrictBS $ encode $ PitcherData nodes links
   BS.writeFile "data.json" fileData
   return ()
 
 trimLinks :: Double -> [Link] -> [Link]
-trimLinks minDist links = foldr (\(Link s t d) total -> if d < minDist
-                                                          then (Link s t d):total
-                                                          else total) [] links
+trimLinks minDist links = foldr (\(Link s t d) total ->
+                            if d < minDist
+                              then (Link s t d):total
+                              else total) [] links
 
 lazyToStrictBS :: LBS.ByteString -> BS.ByteString
 lazyToStrictBS x = BS.concat $ LBS.toChunks x

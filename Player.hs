@@ -41,9 +41,9 @@ data Player = Player { name     :: String
 
 instance Point Player where
     -- dimension :: Player -> Int
-    dimension p = 1
+    dimension p = length dims
     -- coord :: Int -> Player -> Double
-    coord 0 p = faPct p
+    coord n p = (dims !! n) p
     -- dist2 :: Player -> Player -> Double
     dist2 p1 p2 = foldr (\m s -> s + (m p1 p2)) 0 compList
 
@@ -132,6 +132,8 @@ scComp p1 p2 = sq $ (sc p1) - (sc p2)
 
 knComp :: Player -> Player -> Double
 knComp p1 p2 = sq $ (kn p1) - (kn p2)
+
+dims = [fa, ft, fc, fs, fo, si, sl, cu, kc, ep, ch, sc, kn, swStrPct]
 
 fa :: Player -> Double
 fa p = (faPct p) * (wFAc p)
